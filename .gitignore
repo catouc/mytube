@@ -1,0 +1,10 @@
+.idea/
+.direnv
+result/
+.envrc
+mytube.db
+
+
+# Added by cargo
+
+/target

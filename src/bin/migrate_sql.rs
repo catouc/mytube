@@ -1,8 +1,4 @@
 use rusqlite::Connection;
-use jiff::Timestamp;
-use channel_update::fetch_outdated_channels;
-
-mod channel_update;
 
 fn main() {
     let db = Connection::open("mytube.db").unwrap();
@@ -19,12 +15,10 @@ fn main() {
         "CREATE TABLE IF NOT EXISTS videos (
             id INTEGER PRIMARY KEY,
             url TEXT NOT NULL,
+            downloaded INTEGER NOT NULL,
             channel_id INTEGER NOT NULL,
             FOREIGN KEY(channel_id) REFERENCES channels(channel_id)
         )",
         (),
     ).unwrap();
-
-    let channels = fetch_outdated_channels(&db, Timestamp::now());
-
 }

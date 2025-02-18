@@ -32,6 +32,9 @@
               rustc
               rust-analyzer
 	      sqlite
+	      openssl
+	      pkg-config
+	      yt-dlp
             ];
           };
         };

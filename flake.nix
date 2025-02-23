@@ -28,14 +28,17 @@
         devShells = {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
-              cargo
 	      litecli
-              rustc
-              rust-analyzer
-	      sqlite
+	      nixd
 	      openssl
 	      pkg-config
+	      sqlite
 	      yt-dlp
+              cargo
+              rust-analyzer
+              rustPackages.clippy
+              rustPackages.rustfmt
+              rustc
             ];
           };
         };

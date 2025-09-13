@@ -1,6 +1,7 @@
 .idea/
 .direnv
 result/
+/result
 .envrc
 mytube.db
 

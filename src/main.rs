@@ -37,11 +37,11 @@ fn main() {
     match &cli.command {
         Commands::Download{destination} => {
             let mut statement = db
-                .prepare("SELECT url FROM videos WHERE downloaded == 0;")
+                .prepare("SELECT url FROM video WHERE downloaded == 0;")
                 .expect("SQL statement to fetch undownloaded videos is not valid");
 
             let mut mark_video_downloaded = db
-                .prepare("UPDATE videos SET downloaded = 1 WHERE url = ?1;")
+                .prepare("UPDATE video SET downloaded = 1 WHERE url = ?1;")
                 .expect("SQL statement to set video as downloaded is not valid");
 
             statement.query_map([], |row| {

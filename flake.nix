@@ -12,7 +12,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         build = pkgs.rustPlatform.buildRustPackage {
           pname = "replace";
-          version = "v0.1.0";
+          version = "v0.2.0";
           src = ./.;
 	  propagatedBuildInputs = [
 		pkgs.sqlite

@@ -14,6 +14,7 @@ pub struct Video {
 pub fn from_feed_entry(entry: &feed_rs::model::Entry) -> Video {
     let url_list: Vec<String> = entry.links.iter()
         .map(|l| l.clone().href)
+        .filter(|l| l.contains("shorts"))
         .collect();
 
     if url_list.len() > 1 {

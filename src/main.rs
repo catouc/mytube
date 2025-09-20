@@ -54,6 +54,7 @@ fn main() {
                     println!("Downloading {v}");
                     YoutubeDl::new(&v)
                         .socket_timeout("15")
+                        .format("vcodec=av01/bestvideo*+bestaudio/best")
                         .download_to(destination)
                         .unwrap();
 

@@ -5,7 +5,7 @@ use crate::video::Video;
 
 #[derive(Debug)]
 pub struct Channel {
-    id: u64,
+    id: u32,
     yt_id: String,
     name: String,
     feed_url: String,
@@ -62,7 +62,7 @@ pub fn update_videos(tx: &Transaction, channel: &Channel) {
     insert_videos(tx, channel.id, videos);
 }
 
-fn insert_videos(tx: &Transaction, channel_id: u64, videos: Vec<Video>) {
+fn insert_videos(tx: &Transaction, channel_id: u32, videos: Vec<Video>) {
     videos.iter().for_each(|video| {
         tx.execute("INSERT INTO video (id, url, title, downloaded, channel_id)
             VALUES ((SELECT id FROM video WHERE url = ?1), ?1, ?2, ?3, ?4)

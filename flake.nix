@@ -14,11 +14,11 @@
           pname = "replace";
           version = "v0.3.0";
           src = ./.;
-	  propagatedBuildInputs = [
-		pkgs.sqlite
-	  ];
+      	  propagatedBuildInputs = [
+		        pkgs.sqlite
+	        ];
           cargoHash = "sha256-ccTdpeMMfuZ7SQADk36SAmeKM9CmkGHgWiHhe5JWA+E=";
-	  cargoLock.lockFile = ./Cargo.lock;
+	        cargoLock.lockFile = ./Cargo.lock;
         };
       in
       rec {

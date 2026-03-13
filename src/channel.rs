@@ -56,7 +56,7 @@ pub fn update_videos(tx: &Transaction, channel: &Channel) {
     ).unwrap();
 
     let videos = feed.entries.iter()
-        .map(crate::video::from_feed_entry)
+        .filter_map(crate::video::from_feed_entry)
         .collect();
 
     insert_videos(tx, channel.id, videos);

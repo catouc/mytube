@@ -11,11 +11,20 @@ pub struct Video {
 ///   </title>
 ///   <link rel="alternate" href="youtube video watch link"/>
 /// </entry>
-pub fn from_feed_entry(entry: &feed_rs::model::Entry) -> Video {
+pub fn from_feed_entry(entry: &feed_rs::model::Entry) -> Option<Video> {
     let url_list: Vec<String> = entry.links.iter()
-        .map(|l| l.clone().href)
-        .filter(|l| !l.contains("shorts"))
+        .filter_map(|l| {
+            if l.href.contains("shorts") {
+                None
+            } else {
+                Some(l.clone().href)
+            }
+        })
         .collect();
+
+    if url_list.len() == 0 {
+        return None
+    }
 
     if url_list.len() > 1 {
         eprintln!("entry has too many links, taking the first: \"{}\"", url_list.join(","));
@@ -30,5 +39,5 @@ pub fn from_feed_entry(entry: &feed_rs::model::Entry) -> Video {
        None => "".to_owned(),
     };
 
-    Video{url, title}
+    Some(Video{url, title})
 }

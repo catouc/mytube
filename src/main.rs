@@ -3,6 +3,7 @@ use jiff::{Timestamp, ToSpan};
 use rusqlite::Connection;
 use youtube_dl::YoutubeDl;
 use crate::channel::{fetch_outdated, update_videos, add};
+use crate::video::Video;
 
 mod channel;
 mod video;
@@ -26,6 +27,10 @@ enum Commands {
     MigrateSQL,
     UpdateChannels {
         since: i32
+    },
+    ListVideos,
+    MarkVideoDownloaded {
+        url: String,
     },
 }
 
@@ -101,6 +106,32 @@ fn main() {
                     update_videos(&tx, channel);
                     tx.commit().expect("failed to update videos for {channel}");
                 })
+        },
+        Commands::ListVideos => {
+            let mut statement = db.prepare(
+                "SELECT url, title FROM video WHERE downloaded = 0",
+            ).expect("invalid SQL");
+
+            let video_iter = statement.query_map([], |row| {
+                Ok(Video{
+                    url: row.get(0).unwrap(),
+                    title: row.get(1).unwrap(),
+                }) 
+            }).unwrap();
+
+            for video in video_iter {
+                let v = video.unwrap();
+                println!("{}\t{}", &v.title, &v.url)
+            }
+        },
+        Commands::MarkVideoDownloaded{url} => {
+            let mut mark_video_downloaded = db
+                .prepare("UPDATE video SET downloaded = 1 WHERE url = ?1;")
+                .expect("SQL statement to set video as downloaded is not valid");
+
+             mark_video_downloaded
+                .execute((&url,))
+                .unwrap();
         },
     }
 }

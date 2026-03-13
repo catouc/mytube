@@ -1,6 +1,7 @@
 pub struct Video {
     pub title: String,
     pub url: String,
+    pub thumbnail_url: String,
 }
 
 /// This expects that the feed entry structure of a YouTube RSS feed is
@@ -39,5 +40,9 @@ pub fn from_feed_entry(entry: &feed_rs::model::Entry) -> Option<Video> {
        None => "".to_owned(),
     };
 
-    Some(Video{url, title})
+    let thumbnail_urls: Vec<String> = entry.media.iter()
+        .map(|m| m.thumbnails[0].image.uri.clone())
+        .collect();
+
+    Some(Video{url, title, thumbnail_url: thumbnail_urls[0].clone()})
 }

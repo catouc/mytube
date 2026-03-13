@@ -64,10 +64,10 @@ pub fn update_videos(tx: &Transaction, channel: &Channel) {
 
 fn insert_videos(tx: &Transaction, channel_id: u32, videos: Vec<Video>) {
     videos.iter().for_each(|video| {
-        tx.execute("INSERT INTO video (id, url, title, downloaded, channel_id)
-            VALUES ((SELECT id FROM video WHERE url = ?1), ?1, ?2, ?3, ?4)
+        tx.execute("INSERT INTO video (id, url, title, thumbnail_url, downloaded, channel_id)
+            VALUES ((SELECT id FROM video WHERE url = ?1), ?1, ?2, ?3, ?4, ?5)
             ON CONFLICT DO NOTHING",
-            (&video.url, &video.title, 0, channel_id)
+            (&video.url, &video.title, &video.thumbnail_url, 0, channel_id)
         ).unwrap();
     });
 }

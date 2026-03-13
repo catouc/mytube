@@ -70,8 +70,8 @@ fn main() {
                         .unwrap();
                 });
         },
-        Commands::AddChannel{name, channel_id: feed_url} => {
-            add(&db, name, feed_url).expect("failed to add channel");
+        Commands::AddChannel{name, channel_id } => {
+            add(&db, name, channel_id).expect("failed to add channel");
         },
         Commands::MigrateSQL => {
             db.execute(
@@ -90,6 +90,7 @@ fn main() {
                     id INTEGER PRIMARY KEY,
                     url TEXT NOT NULL,
                     title TEXT NOT NULL,
+                    thumbnail_url TEXT NOT NULL,
                     downloaded INTEGER NOT NULL,
                     channel_id INTEGER NOT NULL,
                     FOREIGN KEY(channel_id) REFERENCES channel(channel_id)
@@ -111,19 +112,20 @@ fn main() {
         },
         Commands::ListVideos{channel} => {
             let mut statement = db.prepare(
-                "SELECT url, title FROM video WHERE downloaded = 0 AND channel_id = (SELECT id FROM channel WHERE name = ?1)",
+                "SELECT url, title, thumbnail_url FROM video WHERE downloaded = 0 AND channel_id = (SELECT id FROM channel WHERE name = ?1)",
             ).expect("invalid SQL");
 
             let video_iter = statement.query_map([channel], |row| {
                 Ok(Video{
                     url: row.get(0).unwrap(),
                     title: row.get(1).unwrap(),
+                    thumbnail_url: row.get(2).unwrap(),
                 }) 
             }).unwrap();
 
             for video in video_iter {
                 let v = video.unwrap();
-                println!("{}\t{}", &v.title, &v.url)
+                println!("{}\t{}\t{}", &v.title, &v.url, &v.thumbnail_url)
             }
         },
         Commands::MarkVideoDownloaded{url} => {

@@ -13,6 +13,9 @@ mod video;
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+
+    #[arg(short,long, default_value="/var/mytube/mytube.db")]
+    db_file: String,
 }
 
 #[derive(Subcommand)]
@@ -39,7 +42,7 @@ enum Commands {
 fn main() {
     let cli = Cli::parse();
 
-    let mut db = Connection::open("mytube.db").expect("cannot find DB file");
+    let mut db = Connection::open(&cli.db_file).expect("cannot find DB file");
 
     match &cli.command {
         Commands::Download{destination} => {

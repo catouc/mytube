@@ -28,7 +28,9 @@ enum Commands {
     UpdateChannels {
         since: i32
     },
-    ListVideos,
+    ListVideos {
+        channel: String,
+    },
     MarkVideoDownloaded {
         url: String,
     },
@@ -107,12 +109,12 @@ fn main() {
                     tx.commit().expect("failed to update videos for {channel}");
                 })
         },
-        Commands::ListVideos => {
+        Commands::ListVideos{channel} => {
             let mut statement = db.prepare(
-                "SELECT url, title FROM video WHERE downloaded = 0",
+                "SELECT url, title FROM video WHERE downloaded = 0 AND channel_id = (SELECT id FROM channel WHERE name = ?1)",
             ).expect("invalid SQL");
 
-            let video_iter = statement.query_map([], |row| {
+            let video_iter = statement.query_map([channel], |row| {
                 Ok(Video{
                     url: row.get(0).unwrap(),
                     title: row.get(1).unwrap(),

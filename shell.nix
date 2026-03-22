@@ -5,9 +5,11 @@ in
 pkgs.mkShellNoCC {
   packages = with pkgs; [
     cargo
+    clippy
     gcc
     rust-analyzer
     rustc
+    rustfmt
     sqlite
   ];
 }

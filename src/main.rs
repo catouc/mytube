@@ -79,11 +79,17 @@ fn main() {
             }]);
         }
 
-        Commands::UpdateChannels { since } => storage
-            .channels(Timestamp::now() - since.hours())
-            .unwrap()
-            .iter_mut()
-            .for_each(|c| c.update_videos().unwrap()),
+        Commands::UpdateChannels { since } => {
+            let mut channels = storage
+                .channels(Timestamp::now() - since.hours())
+                .unwrap();
+
+            for c in &mut channels {
+                c.update_videos().unwrap();
+            }
+
+            storage.insert_channels(&channels);
+        }
 
         Commands::ListVideos { channel } => storage
             .channel(channel)

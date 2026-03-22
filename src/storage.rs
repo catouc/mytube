@@ -74,7 +74,7 @@ impl Storage {
                     "
                     REPLACE INTO channel (id, yt_id, name, feed_url, last_fetched)
                     VALUES ((SELECT id FROM channel WHERE feed_url = ?3), ?1, ?2, ?3, ?4)",
-                    (&c.name, &c.yt_id, &c.feed_url, Timestamp::now().to_string()),
+                    (&c.yt_id, &c.name, &c.feed_url, Timestamp::now().to_string()),
                 )
                 .expect("failed to insert channel");
 

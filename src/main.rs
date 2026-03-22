@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 use crate::channel::Channel;
 use clap::{Parser, Subcommand};
 use jiff::{Timestamp, ToSpan};
@@ -49,7 +51,7 @@ fn main() {
                     Ok(url)
                 })
                 .unwrap()
-                .filter_map(|v| v.ok())
+                .filter_map(std::result::Result::ok)
                 .for_each(|v| {
                     println!("Downloading {v}");
                     YoutubeDl::new(&v)
@@ -67,16 +69,14 @@ fn main() {
                 "https://www.youtube.com/feeds/videos.xml?channel_id=".into();
             feed_url.push_str(channel_id);
 
-            storage
-                .insert_channels(vec![Channel {
-                    id: 0,
-                    yt_id: channel_id.clone(),
-                    name: name.clone(),
-                    feed_url,
-                    last_fetched: Timestamp::now(),
-                    undownloaded_videos: Vec::new(),
-                }])
-                .unwrap()
+            storage.insert_channels(&[Channel {
+                id: 0,
+                yt_id: channel_id.clone(),
+                name: name.clone(),
+                feed_url,
+                last_fetched: Timestamp::now(),
+                undownloaded_videos: Vec::new(),
+            }]);
         }
 
         Commands::UpdateChannels { since } => storage

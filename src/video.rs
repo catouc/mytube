@@ -36,13 +36,13 @@ impl Video {
                 "entry has too many links, taking the first: \"{}\"",
                 url_list.join(",")
             );
-        };
+        }
 
         let url = url_list[0].clone();
 
         let title = match &entry.title {
             Some(title) => title.content.clone(),
-            None => "".to_owned(),
+            None => String::new(),
         };
 
         let thumbnail_urls: Vec<String> = entry

@@ -67,8 +67,8 @@ impl Storage {
             .collect()
     }
 
-    pub fn insert_channels(&self, channels: Vec<Channel>) -> Result<(), Error> {
-        channels.iter().for_each(|c| {
+    pub fn insert_channels(&self, channels: &[Channel]) {
+        for c in channels {
             self.db
                 .execute(
                     "
@@ -98,8 +98,7 @@ impl Storage {
                     )
                     .unwrap();
             });
-        });
-        Ok(())
+        }
     }
 
     pub fn mark_video_downloaded(&self, url: &str) -> Result<(), Error> {

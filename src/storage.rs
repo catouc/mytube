@@ -69,6 +69,8 @@ impl Storage {
 
     pub fn insert_channels(&self, channels: &[Channel]) {
         for c in channels {
+            println!("Updating videos for {}", &c.name);
+
             self.db
                 .execute(
                     "
@@ -79,6 +81,8 @@ impl Storage {
                 .expect("failed to insert channel");
 
             c.undownloaded_videos.iter().for_each(|v| {
+                println!("Processing video {}({})", &v.title, &v.url);
+
                 self.db
                     .execute(
                         "INSERT INTO video (
@@ -114,7 +118,11 @@ impl Storage {
 
     fn undownloaded_videos_for_channel(&self, channel_id: u32) -> Result<Vec<Video>, Error> {
         let mut videos_for_channel = self.db
-            .prepare("SELECT title, url, thumbnail_url FROM video WHERE downloaded != 1 AND channel_id = ?1")
+            .prepare("
+                SELECT title, url, thumbnail_url
+                FROM video
+                WHERE downloaded != 1 AND channel_id = ?1"
+            )
             .expect("SQL statement to fetch not downloaded videos is not valid");
 
         // This is insane, we basicall take the

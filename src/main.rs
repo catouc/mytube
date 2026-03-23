@@ -23,7 +23,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Download { destination: String },
-    AddChannel { name: String, channel_id: String },
+    AddChannel { name: String, url: String },
     UpdateChannels { since: i32 },
     ListVideos { channel: String },
     MarkVideoDownloaded { url: String },
@@ -64,14 +64,25 @@ fn main() {
                 });
         }
 
-        Commands::AddChannel { name, channel_id } => {
+        Commands::AddChannel { name, url } => {
+            let channel_html = minreq::get(url).send().unwrap();
+            let channel_id_match = regex::Regex::new(r#"www\.youtube\.com\/channel\/(?<channel_id>\S+)""#)
+                .expect("regex for channel ID does not compile");
+
+            let Some(matches) = channel_id_match.captures(channel_html.as_str().unwrap()) else {
+                eprintln!("failed to locate channel id from YouTube!");
+                return
+            };
+
+            let channel_id = &matches["channel_id"];
+
             let mut feed_url: String =
                 "https://www.youtube.com/feeds/videos.xml?channel_id=".into();
             feed_url.push_str(channel_id);
 
             storage.insert_channels(&[Channel {
                 id: 0,
-                yt_id: channel_id.clone(),
+                yt_id: channel_id.to_string(),
                 name: name.clone(),
                 feed_url,
                 last_fetched: Timestamp::now(),

@@ -69,8 +69,6 @@ impl Storage {
 
     pub fn insert_channels(&self, channels: &[Channel]) {
         for c in channels {
-            println!("Updating videos for {}", &c.name);
-
             self.db
                 .execute(
                     "

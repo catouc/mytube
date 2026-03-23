@@ -590,6 +590,7 @@ dependencies = [
  "feed-rs",
  "jiff",
  "minreq",
+ "regex",
  "rusqlite",
  "youtube_dl",
 ]

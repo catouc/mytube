@@ -25,7 +25,7 @@ enum Commands {
     Download { destination: String },
     AddChannel { name: String, url: String },
     UpdateChannels { since: i32 },
-    ListVideos { channel: String },
+    ListVideos { channel: Option<String> },
     MarkVideoDownloaded { url: String },
 }
 
@@ -102,12 +102,36 @@ fn main() {
             storage.insert_channels(&channels);
         }
 
-        Commands::ListVideos { channel } => storage
-            .channel(channel)
-            .expect("failed to find channel")
-            .undownloaded_videos
-            .iter()
-            .for_each(|v| println!("{}\t{}\t{}", &v.title, &v.url, &v.thumbnail_url)),
+        Commands::ListVideos { channel } => {
+            if let Some(channel) = channel {
+                for v in storage.channel(channel)
+                    .expect("did not find channel")
+                    .undownloaded_videos
+                    .iter() {
+                        println!(
+                            "{}\t{}\t{}\t{}",
+                            &channel,
+                            &v.title,
+                            &v.url,
+                            &v.thumbnail_url,
+                        )
+                }
+            } else {
+                for channel in storage.channels(Timestamp::now())
+                    .expect("failed to find channels")
+                    .iter() {
+                    for v in channel.undownloaded_videos.iter() {
+                        println!(
+                            "{}\t{}\t{}\t{}",
+                            &channel.name,
+                            &v.title,
+                            &v.url,
+                            &v.thumbnail_url,
+                        )
+                    }
+                }
+            }
+        },
 
         Commands::MarkVideoDownloaded { url } => storage
             .mark_video_downloaded(url)

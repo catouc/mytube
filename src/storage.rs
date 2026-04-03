@@ -115,11 +115,13 @@ impl Storage {
     }
 
     fn undownloaded_videos_for_channel(&self, channel_id: u32) -> Result<Vec<Video>, Error> {
-        let mut videos_for_channel = self.db
-            .prepare("
+        let mut videos_for_channel = self
+            .db
+            .prepare(
+                "
                 SELECT title, url, thumbnail_url
                 FROM video
-                WHERE downloaded != 1 AND channel_id = ?1"
+                WHERE downloaded != 1 AND channel_id = ?1",
             )
             .expect("SQL statement to fetch not downloaded videos is not valid");
 

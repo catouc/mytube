@@ -66,12 +66,13 @@ fn main() {
 
         Commands::AddChannel { name, url } => {
             let channel_html = minreq::get(url).send().unwrap();
-            let channel_id_match = regex::Regex::new(r#"www\.youtube\.com\/channel\/(?<channel_id>\S+)""#)
-                .expect("regex for channel ID does not compile");
+            let channel_id_match =
+                regex::Regex::new(r#"www\.youtube\.com\/channel\/(?<channel_id>\S+)""#)
+                    .expect("regex for channel ID does not compile");
 
             let Some(matches) = channel_id_match.captures(channel_html.as_str().unwrap()) else {
                 eprintln!("failed to locate channel id from YouTube!");
-                return
+                return;
             };
 
             let channel_id = &matches["channel_id"];
@@ -91,9 +92,7 @@ fn main() {
         }
 
         Commands::UpdateChannels { since } => {
-            let mut channels = storage
-                .channels(Timestamp::now() - since.hours())
-                .unwrap();
+            let mut channels = storage.channels(Timestamp::now() - since.hours()).unwrap();
 
             for c in &mut channels {
                 c.update_videos().unwrap();
@@ -104,34 +103,30 @@ fn main() {
 
         Commands::ListVideos { channel } => {
             if let Some(channel) = channel {
-                for v in storage.channel(channel)
+                for v in &storage
+                    .channel(channel)
                     .expect("did not find channel")
                     .undownloaded_videos
-                    .iter() {
-                        println!(
-                            "{}\t{}\t{}\t{}",
-                            &channel,
-                            &v.title,
-                            &v.url,
-                            &v.thumbnail_url,
-                        )
+                {
+                    println!(
+                        "{}\t{}\t{}\t{}",
+                        &channel, &v.title, &v.url, &v.thumbnail_url,
+                    );
                 }
             } else {
-                for channel in storage.channels(Timestamp::now())
+                for channel in &storage
+                    .channels(Timestamp::now())
                     .expect("failed to find channels")
-                    .iter() {
-                    for v in channel.undownloaded_videos.iter() {
+                {
+                    for v in &channel.undownloaded_videos {
                         println!(
                             "{}\t{}\t{}\t{}",
-                            &channel.name,
-                            &v.title,
-                            &v.url,
-                            &v.thumbnail_url,
-                        )
+                            &channel.name, &v.title, &v.url, &v.thumbnail_url,
+                        );
                     }
                 }
             }
-        },
+        }
 
         Commands::MarkVideoDownloaded { url } => storage
             .mark_video_downloaded(url)

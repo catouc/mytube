@@ -61,6 +61,12 @@
           };
 
           config = mkIf cfg.enable {
+            users.groups."${cfg.group}" = {};
+            users.users."${cfg.user}" = {
+              isSystemUser = true;
+              group = cfg.group;
+            };
+
             systemd.services.mytube = {
               after = [ "network-online.target" ];
               wantedBy = [ "multi-user.target" ];

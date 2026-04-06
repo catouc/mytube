@@ -35,12 +35,18 @@ in
   };
 
   config = mkIf cfg.enable {
+    users.groups."${cfg.group}" = {};
+    users.users."${cfg.user}" = {
+      isSystemUser = true;
+      group = cfg.group;
+    };
+
     systemd.services.mytube = {
       after = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
       startAt = "*:0/30";
       serviceConfig = {
-        ExecStart = "${cfg.package}/bin/mytube update-channels 0"
+        ExecStart = "${cfg.package}/bin/mytube -d ${cfg.databaseFile} update-channels 0"
         User = cfg.user;
         Group = cfg.group;
 

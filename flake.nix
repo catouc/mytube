@@ -66,7 +66,7 @@
               wantedBy = [ "multi-user.target" ];
               startAt = "*:0/30";
               serviceConfig = {
-                ExecStart = "${cfg.package}/bin/mytube update-channels 0";
+                ExecStart = "${cfg.package}/bin/mytube -d ${cfg.databaseFile} update-channels 0";
                 User = cfg.user;
                 Group = cfg.group;
 

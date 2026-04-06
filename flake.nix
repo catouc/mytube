@@ -52,11 +52,11 @@
               description = "The group to run this service under";
             };
 
-            databaseFile = mkOption {
+            dataDir = mkOption {
               type = types.path;
-              default = "/var/mytube/mytube.db";
-              example = "/home/user/mytube.db";
-              description = "The sqlite database file location";
+              default = "/var/mytube/";
+              example = "/home/user/";
+              description = "The data dir, mostly holds the database file";
             };
           };
 
@@ -72,7 +72,7 @@
               wantedBy = [ "multi-user.target" ];
               startAt = "*:0/30";
               serviceConfig = {
-                ExecStart = "${cfg.package}/bin/mytube -d ${cfg.databaseFile} update-channels 0";
+                ExecStart = "${cfg.package}/bin/mytube -d ${cfg.dataDir}/mytube.db update-channels 0";
                 User = cfg.user;
                 Group = cfg.group;
 
@@ -92,6 +92,7 @@
                 ProtectKernelTunables = "yes";
                 ProtectProc="invisible";
                 ProtectSystem = "strict";
+                ReadWritePaths="${cfg.dataDir}";
                 RemoveIPC="yes";
                 RestrictNamespaces="yes";
                 RestrictRealtime="yes";

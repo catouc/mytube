@@ -69,6 +69,7 @@
 
             systemd.services.mytube = {
               after = [ "network-online.target" ];
+              wants = [ "network-online.target" ];
               wantedBy = [ "multi-user.target" ];
               startAt = "*:0/30";
               serviceConfig = {

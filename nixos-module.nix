@@ -41,7 +41,7 @@ in
       group = cfg.group;
     };
 
-    systemd.services.mytube = {
+    systemd.services.mytube-update-videos = {
       after = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
       startAt = "*:0/30";

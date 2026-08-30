@@ -13,11 +13,14 @@
     {
       packages.${system}.default = pkgs.rustPlatform.buildRustPackage {
         pname = "mytube";
-        version = "v0.6.0";
+        version = "v0.7.0";
         src = ./.;
         propagatedBuildInputs = [
+          pkgs.deno
+          pkgs.ffmpeg
           pkgs.sqlite
         ];
+
         cargoHash = "sha256-ccTdpeMMfuZ7SQADk36SAmeKM9CmkGHgWiHhe5JWA+E=";
         cargoLock.lockFile = ./Cargo.lock;
       };

@@ -41,7 +41,13 @@ impl Storage {
 
     pub fn channel(&self, channel_name: &str) -> Result<Channel, Error> {
         self.db.query_one(
-            "SELECT id, yt_id, feed_url, name, last_fetched
+            "SELECT
+                id,
+                yt_id,
+                feed_url,
+                name,
+                last_fetched,
+                (SELECT count(id) FROM video WHERE channel_id = channel.id AND downloaded = 1) AS video_count
              FROM channel
              WHERE name = ?1
             ",
@@ -57,7 +63,9 @@ impl Storage {
             .db
             .prepare(
                 "
-                SELECT id, yt_id, name, feed_url, last_fetched
+                SELECT
+                    id, yt_id, name, feed_url, last_fetched, 
+                    (SELECT count(id) FROM video WHERE channel_id = channel.id AND downloaded = 1) AS video_count
                 FROM channel WHERE datetime(last_fetched) < datetime(?);",
             )
             .expect("SQL statement to fetch outdated channels is not valid");
@@ -145,6 +153,7 @@ impl Storage {
         let video_id: u32 = row.get(0)?;
         let last_fetched_string: String = row.get(4)?;
         let last_fetched: Timestamp = last_fetched_string.parse().unwrap();
+        let downloaded_video_count = row.get(5)?;
 
         Ok(Channel {
             id: video_id,
@@ -153,6 +162,7 @@ impl Storage {
             feed_url: row.get(3)?,
             last_fetched,
             undownloaded_videos: self.undownloaded_videos_for_channel(video_id)?,
+            downloaded_video_count,
         })
     }
 }

@@ -14,6 +14,8 @@ rustPlatform.buildRustPackage {
   };
   propagatedBuildInputs = [
 		sqlite
+    ffmpeg
+    deno
 	];
   cargoHash = "sha256-ccTdpeMMfuZ7SQADk36SAmeKM9CmkGHgWiHhe5JWA+E=";
 	cargoLock.lockFile = ./Cargo.lock;

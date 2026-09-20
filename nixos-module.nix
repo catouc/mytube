@@ -47,8 +47,8 @@ in
       startAt = "*:0/30";
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/mytube -d ${cfg.dataDir}/mytube.db update-channels 0";
-      User = cfg.user;
-      Group = cfg.group;
+        User = cfg.user;
+        Group = cfg.group;
 
         CapabilityBoundingSet="";
         LockPersonality="yes";

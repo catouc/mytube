@@ -7,6 +7,8 @@ use youtube_dl::YoutubeDl;
 mod channel;
 mod storage;
 mod video;
+mod filter;
+mod series;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from `Cargo.toml`
@@ -29,6 +31,14 @@ enum Commands {
     AddChannel {
         name: String,
         url: String,
+    },
+    AddSeries {
+        name: String,
+        channel_name: String,
+        folder: String,
+        pattern: String,
+        #[arg(short, long)]
+        filter_name: Option<String>,
     },
     UpdateChannels {
         since: i32,
@@ -87,7 +97,7 @@ fn main() {
                     yt.output_template("%(title)s.%(ext)s")
                         .download_to(destination)
                         .expect("failed to download");
-                };
+                }
 
                 println!("Downloading: {:#?}", &v.url);
 
@@ -104,11 +114,43 @@ fn main() {
             storage.insert_channels(&[chan]);
         }
 
+        Commands::AddSeries { name, channel_name, folder, pattern, filter_name } => {
+            let channel = &storage
+                .channel(channel_name)
+                .expect("did not find channel");
+
+            let filter = if let Some(filter_name) = filter_name {
+                    &storage.filter_from_name(filter_name).expect("failed to find filter")
+                } else {
+                    let f = filter::Filter{
+                       id: 0,
+                       name: name.clone(),
+                       field: "title".into(),
+                       pattern: pattern.clone(),
+                    };
+                    
+                    storage.insert_filters(&[f])
+                        .expect("failed to create filter");
+
+                    &storage.filter_from_name(name).expect("failed to find filter")
+            };
+
+            let s = series::Series{
+               id: 0,
+               name: name.clone(),
+               channel_id: channel.id,
+               filter_id: filter.id,
+               destination: folder.clone(),
+            };
+
+            storage.insert_series(&[s]).expect("failed to insert series");
+        }
+
         Commands::UpdateChannels { since } => {
             let mut channels = storage.channels(Timestamp::now() - since.hours()).unwrap();
 
             for c in &mut channels {
-                c.update_videos().unwrap();
+                c.update_videos(&storage).unwrap();
             }
 
             storage.insert_channels(&channels);
@@ -121,9 +163,10 @@ fn main() {
                     .expect("did not find channel")
                     .undownloaded_videos
                 {
+                    let series = &storage.series_from_id(&v.series_id).unwrap();
                     println!(
-                        "{}\t{}\t{}\t{}",
-                        &channel, &v.title, &v.url, &v.thumbnail_url,
+                        "{}\t{}\t{}\t{}\t{}",
+                        &channel, &v.title, &v.url, &v.thumbnail_url, series.destination,
                     );
                 }
             } else {
@@ -132,9 +175,10 @@ fn main() {
                     .expect("failed to find channels")
                 {
                     for v in &channel.undownloaded_videos {
+                        let series = &storage.series_from_id(&v.series_id).unwrap();
                         println!(
-                            "{}\t{}\t{}\t{}",
-                            &channel.name, &v.title, &v.url, &v.thumbnail_url,
+                            "{}\t{}\t{}\t{}\t{}",
+                            &channel.name, &v.title, &v.url, &v.thumbnail_url, series.destination,
                         );
                     }
                 }

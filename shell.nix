@@ -1,6 +1,5 @@
 let
-  nixpkgs = fetchTarball "https://github.com/NixOS/nixpkgs/tarball/nixos-25.11";
-  pkgs = import nixpkgs { config = {}; overlays = []; };
+  pkgs = import <nixpkgs> { config = {}; overlays = []; };
 in
 pkgs.mkShellNoCC {
   packages = with pkgs; [
@@ -11,5 +10,6 @@ pkgs.mkShellNoCC {
     rustc
     rustfmt
     sqlite
+    litecli
   ];
 }

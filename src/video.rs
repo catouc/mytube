@@ -3,6 +3,7 @@ pub struct Video {
     pub title: String,
     pub url: String,
     pub thumbnail_url: String,
+    pub series_id: u32,
 }
 
 impl Video {
@@ -55,6 +56,7 @@ impl Video {
             url,
             title,
             thumbnail_url: thumbnail_urls[0].clone(),
+            series_id: 0,
         })
     }
 }

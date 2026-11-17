@@ -14,14 +14,28 @@ pub struct Channel {
 }
 
 impl Channel {
-    pub fn update_videos(&mut self) -> Result<(), minreq::Error> {
+    pub fn update_videos(&mut self, storage: &crate::storage::Storage) -> Result<(), minreq::Error> {
         let response = minreq::get(&self.feed_url).send()?;
         let feed = parser::parse(response.as_bytes()).unwrap();
+
+        let series = storage.series_for_channel(&self.id).unwrap();
 
         self.undownloaded_videos = feed
             .entries
             .iter()
             .filter_map(Video::from_feed_entry)
+            .map(|mut v| {
+                for s in &series {
+                    let filter = storage.filter_from_id(s.filter_id).unwrap();
+                    if filter.field == "title" {
+                        let re = regex::Regex::new(&filter.pattern).unwrap();
+                        if re.is_match(&v.title) {
+                            v.series_id = s.id.clone();
+                        }
+                    }
+                }
+                v
+            })
             .collect();
 
         Ok(())
@@ -36,7 +50,7 @@ pub enum ChannelFetchError {
 pub fn from_url(url: &str, name: &str) -> Result<Channel, ChannelFetchError> {
     let channel_html = minreq::get(url).send().unwrap();
     let channel_id_match =
-        regex::Regex::new(r#"www\.youtube\.com\/channel\/(?<channel_id>[-a-zA-Z0-9]+).+""#)
+        regex::Regex::new(r#"www\.youtube\.com\/channel\/(?<channel_id>[-a-zA-Z0-9_]+).+""#)
             .expect("regex for channel ID does not compile");
 
     let Some(matches) = channel_id_match.captures(channel_html.as_str().unwrap()) else {

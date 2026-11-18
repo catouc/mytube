@@ -44,7 +44,10 @@ enum Commands {
         since: i32,
     },
     ListVideos {
+        #[arg(short, long)]
         channel: Option<String>,
+        #[arg(short, long)]
+        series: Option<String>,
     },
     MarkVideoDownloaded {
         url: String,
@@ -156,7 +159,7 @@ fn main() {
             storage.insert_channels(&channels);
         }
 
-        Commands::ListVideos { channel } => {
+        Commands::ListVideos { channel, series } => {
             if let Some(channel) = channel {
                 for v in &storage
                     .channel(channel)
@@ -164,22 +167,34 @@ fn main() {
                     .undownloaded_videos
                 {
                     let series = &storage.series_from_id(&v.series_id).unwrap();
-                    println!(
-                        "{}\t{}\t{}\t{}\t{}",
-                        &channel, &v.title, &v.url, &v.thumbnail_url, series.destination,
-                    );
+                    if let Some(series) = series {
+                        println!("{}\t{}\t{}\t{}\t{}",
+                            &channel, &v.title, &v.url, &v.thumbnail_url, series.destination,
+                        );
+                    } else {
+                        println!("{}\t{}\t{}\t{}",
+                            &channel, &v.title, &v.url, &v.thumbnail_url,
+                        );
+                    }
                 }
-            } else {
+            }
+
+            else {
                 for channel in &storage
                     .channels(Timestamp::now())
                     .expect("failed to find channels")
                 {
                     for v in &channel.undownloaded_videos {
                         let series = &storage.series_from_id(&v.series_id).unwrap();
-                        println!(
-                            "{}\t{}\t{}\t{}\t{}",
-                            &channel.name, &v.title, &v.url, &v.thumbnail_url, series.destination,
-                        );
+                        if let Some(series) = series {
+                            println!("{}\t{}\t{}\t{}\t{}",
+                                &channel.name, &v.title, &v.url, &v.thumbnail_url, series.destination,
+                            );
+                        } else {
+                            println!("{}\t{}\t{}\t{}",
+                                &channel.name, &v.title, &v.url, &v.thumbnail_url,
+                            );
+                        }
                     }
                 }
             }

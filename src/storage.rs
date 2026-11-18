@@ -3,7 +3,7 @@ use crate::video::Video;
 use crate::series::Series;
 use crate::filter::Filter;
 use jiff::Timestamp;
-use rusqlite::{Connection, Error, Row};
+use rusqlite::{Connection, Error, Row, OptionalExtension};
 use regex::Regex;
 
 pub struct Storage {
@@ -208,7 +208,7 @@ impl Storage {
         Ok(())
     }
 
-    pub fn series_from_id(&self, series_id: &u32) -> Result<Series, Error> {
+    pub fn series_from_id(&self, series_id: &u32) -> Result<Option<Series>, Error> {
         self.db.query_one(
             "SELECT
                 id,
@@ -221,7 +221,7 @@ impl Storage {
             ",
             [series_id],
             |r| self.series_from_row(r),
-        )
+        ).optional()
     }
 
     pub fn series_for_channel(&self, channel_id: &u32) -> Result<Vec<Series>, Error> {

@@ -131,7 +131,7 @@ impl Storage {
                                 (SELECT id FROM video WHERE url = ?1),
                                 ?1, ?2, ?3, ?4, ?5, ?6
                             )
-                            ON CONFLICT DO NOTHING",
+                            ON CONFLICT DO UPDATE SET series_id = ?6",
                         (&v.url, &v.title, &v.thumbnail_url, 0, c.id, &v.series_id),
                     )
                     .unwrap();
